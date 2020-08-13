@@ -2,7 +2,9 @@ class Metric < ApplicationRecord
   validates :key, presence: true
   validates :value, presence: true
 
+  include Filterable
+
   def self.summary_since(timeframe)
-    select('key, sum(value) as total').where('created_at <= ?', timeframe).group('key')
+    group(:key).where('created_at >= ?', timeframe).sum(:value)
   end
 end

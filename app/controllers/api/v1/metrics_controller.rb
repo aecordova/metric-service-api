@@ -4,24 +4,28 @@ class Api::V1::MetricsController < ApplicationController
   end
 
   def create
-    render status: :ok if metric.save!
+    render status: :ok if new_metric.save!
   end
 
-  def delete
-    render status: :ok if metric.destroy!
+  def destroy
+    render status: :ok if metrics.destroy_all
   end
 
   private
 
-  def metric
-    @metric ||= params[:key] ? Metric.find_by(key: params[:key]) : Metric.new(metric_params)
+  def new_metric
+    @new_metric ||= Metric.new(metric_params)
+  end
+
+  def metrics
+    @metrics ||= Metric.filter_by(key: params[:key])
   end
 
   def metric_params
-    params.require(:metric).permit(:key, :value)
+    params.permit(:key, :value)
   end
 
   def summarized_metrics(timeframe)
-    @summarized_metrics = Metric.summary_since(timeframe)
+    @summarized_metrics ||= Metric.summary_since(timeframe)
   end
 end
